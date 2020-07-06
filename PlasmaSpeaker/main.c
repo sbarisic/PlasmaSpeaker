@@ -4,30 +4,42 @@ int main(void)
 {
 	pinNum_t in_button = B1;
 	pinNum_t status_led = D3;
+
 	logicLevel_t status_led_on = HIGH;
+	logicLevel_t in_button_last = HIGH;
 
 	pinMode(in_button, MODE_INPUT_PULLUP);
 	pinMode(status_led, MODE_OUTPUT);
-	pinWrite(status_led, status_led_on);	
+	pinWrite(status_led, status_led_on);
+
+	pwm_init();
 
 	uart_init();
-	uint8_t input[512];
+	char input[512];
 
 	timer_init();
 	timeMs_t lastFlashTime = timer_ms();
-	timeMs_t flashInterval = 100;
+	timeMs_t flashInterval = 250;
 
-	timer_delay_ms(2500);
-	watchdogEnable(true);
-
-	while (1)
-{
-
-}
+	//watchdogEnable(true);
 
 	while (1)
 	{
 		//watchdogReset();
+
+		logicLevel_t in_button_cur = pinRead(in_button);
+		if (in_button_cur != in_button_last)
+		{
+			in_button_last = in_button_cur;
+			if (in_button_cur == HIGH)
+			{
+				uart_write("HIGH\n", 5);
+			}
+			else
+			{
+				uart_write("LOW\n", 4);
+			}
+		}
 
 		if (uart_available())
 		{

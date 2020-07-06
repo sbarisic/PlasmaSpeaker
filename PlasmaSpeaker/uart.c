@@ -2,7 +2,7 @@
 #define UART_BAUD 9600
 #define IN_BUFFER_LEN 512
 
-uint8_t in_buffer[IN_BUFFER_LEN];
+char in_buffer[IN_BUFFER_LEN];
 int in_buffer_idx;
 
 void clear_input()
@@ -35,7 +35,7 @@ bool uart_available()
 	while ((UCSR0A & (1 << RXC0)) != 0)
 	{
 		uint8_t inByte = UDR0;
-		in_buffer[in_buffer_idx++] = inByte;
+		in_buffer[in_buffer_idx++] = (char)inByte;
 		
 		if (inByte == 0)
 		{
@@ -46,7 +46,7 @@ bool uart_available()
 	return false;
 }
 
-int uart_read(uint8_t* input)
+int uart_read(char* input)
 {
 	for (int i = 0; i < IN_BUFFER_LEN; i++)
 	{
@@ -61,21 +61,14 @@ int uart_read(uint8_t* input)
 	return IN_BUFFER_LEN;
 }
 
-void uart_write(uint8_t* output, int length)
+void uart_write(const char* output, int length)
 {
-	for (int i = 0; i < length + 1; i++)
+	for (int i = 0; i < length; i++)
 	{
 		while ((UCSR0A & (1 << UDRE0)) == 0)
 		{
 		};
 		
-		if (i >= length)
-		{
-			UDR0 = 0;
-		}
-		else
-		{
-			UDR0 = output[i];
-		}
+		UDR0 = output[i];
 	}
 }

@@ -53,7 +53,7 @@
       </ToolNumber>
       <ToolName xmlns="">Custom Programming Tool</ToolName>
     </custom>
-    <CustomProgrammingToolCommand>"C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\avrdude.exe" -C "C:\Program Files (x86)\Arduino\hardware\tools\avr\etc\avrdude.conf" -p atmega328p -c arduino -P COM4 -b 115200 -U flash:w:"$(ProjectDir)Debug\$(TargetName).hex":i</CustomProgrammingToolCommand>
+    <CustomProgrammingToolCommand>"C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\avrdude.exe" -C "C:\Program Files (x86)\Arduino\hardware\tools\avr\etc\avrdude.conf" -p atmega328p -c arduino -P COM4 -b 115200 -U flash:w:"$(ProjectDir)Debug\$(TargetName).hex":i -U lfuse:w:0x77:m -U hfuse:w:0xd9:m -U efuse:w:0xfd:m </CustomProgrammingToolCommand>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -141,6 +141,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="PlasmaSpeaker.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="pwm.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="timer.c">

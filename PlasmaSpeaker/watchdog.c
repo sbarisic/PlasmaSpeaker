@@ -1,6 +1,7 @@
 #include "PlasmaSpeaker.h"
 #include "avr/interrupt.h"
 #include "avr/wdt.h"
+#include "avr/io.h"
 
 void watchdogEnable(bool en)
 {
@@ -8,9 +9,16 @@ void watchdogEnable(bool en)
 	watchdogReset();
 	
 	// Enable/disable
-	WDTCSR = ((en ? 1 : 0) << WDCE) | (1 << WDE);
-	
-	WDTCSR = (0 << WDIF) | (0 << WDIE) | (0 << WDCE) | (1 << WDE) | WDTO_2S;
+	if (en)
+	{
+		WDTCSR = (1 << WDCE) | (1 << WDE);
+		WDTCSR = (0 << WDIF) | (0 << WDIE) | (0 << WDCE) | (1 << WDE) | WDTO_2S;
+	}
+	else
+	{
+		WDTCSR |= (1 << WDCE) | (1 << WDE);
+		WDTCSR = 0;
+	}
 
 	sei();
 }

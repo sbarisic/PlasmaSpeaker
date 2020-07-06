@@ -60,10 +60,13 @@ void watchdogReset();
 // UART functions
 void uart_init();
 bool uart_available();
-int uart_read(uint8_t* input);
-void uart_write(uint8_t* output, int length);
+int uart_read(char* input);
+void uart_write(const char* output, int length);
 
 // Timer functions
 void timer_init();
 timeMs_t timer_ms();
 void timer_delay_ms(timeMs_t ms);
+
+// PWM functions
+void pwm_init();
