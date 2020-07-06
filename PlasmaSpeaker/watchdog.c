@@ -5,17 +5,13 @@
 void watchdogEnable(bool en)
 {
 	cli();
-	wdt_reset();
+	watchdogReset();
 	
-	if (en)
-	{
-		wdt_enable(WDTO_30MS);
-	}
-	else
-	{
-		wdt_disable();
-	}
+	// Enable/disable
+	WDTCSR = ((en ? 1 : 0) << WDCE) | (1 << WDE);
 	
+	WDTCSR = (0 << WDIF) | (0 << WDIE) | (0 << WDCE) | (1 << WDE) | WDTO_2S;
+
 	sei();
 }
 

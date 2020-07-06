@@ -2,41 +2,48 @@
 
 int main(void)
 {
-	pinNum_t INPUT_PIN = B3;
-	pinNum_t OUTPUT_PIN = B1;
-	
-	pinMode(OUTPUT_PIN, MODE_OUTPUT);
-	pinMode(INPUT_PIN, MODE_INPUT_PULLUP);
-	
+	pinNum_t in_button = B1;
+	pinNum_t status_led = D3;
+	logicLevel_t status_led_on = HIGH;
+
+	pinMode(in_button, MODE_INPUT_PULLUP);
+	pinMode(status_led, MODE_OUTPUT);
+	pinWrite(status_led, status_led_on);	
+
 	uart_init();
 	uint8_t input[512];
-	
-	logicLevel_t lastRead = LOW;
-	
+
+	timer_init();
+	timeMs_t lastFlashTime = timer_ms();
+	timeMs_t flashInterval = 100;
+
+	timer_delay_ms(2500);
+	watchdogEnable(true);
+
+	while (1)
+{
+
+}
+
 	while (1)
 	{
-		logicLevel_t read_input = pinRead(INPUT_PIN);
-		
+		//watchdogReset();
+
 		if (uart_available())
 		{
 			uart_read(input);
+			// TODO: Handle UART input
 		}
 		
-		if (read_input != lastRead)
+		timeMs_t curTime = timer_ms();
+		if (curTime - lastFlashTime > flashInterval)
 		{
-			lastRead = read_input;
-			
-			if (read_input == HIGH)
-			{
-				uart_write((uint8_t*)"HIGH\n", 5);
-			}
-			else
-			{
-				uart_write((uint8_t*)"LOW\n", 4);
-			}
+			lastFlashTime = curTime;
+			status_led_on = !status_led_on;
+			pinWrite(status_led, status_led_on);
 		}
 		
-		pinWrite(OUTPUT_PIN, read_input);
+		//pinWrite(OUTPUT_PIN, read_input);
 		
 		//watchdogReset();
 		

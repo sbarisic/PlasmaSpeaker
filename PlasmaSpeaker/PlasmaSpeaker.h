@@ -10,6 +10,7 @@
 typedef int pinNum_t;
 typedef int pinMode_t;
 typedef uint8_t logicLevel_t;
+typedef unsigned long timeMs_t;
 
 #define B0 0
 #define B1 1
@@ -45,16 +46,24 @@ typedef uint8_t logicLevel_t;
 #define HIGH 1
 #define LOW 0
 
+// Pin IO functions
 volatile uint8_t* pinDDR(pinNum_t pinNum);
 volatile uint8_t* pinPort(pinNum_t pinNum);
 void pinMode(pinNum_t pinNum, pinMode_t pinMode);
 void pinWrite(pinNum_t pinNum, logicLevel_t level);
 uint8_t pinRead(pinNum_t pinNum);
 
+// Watchdog functions
 void watchdogEnable(bool en);
 void watchdogReset();
 
+// UART functions
 void uart_init();
 bool uart_available();
 int uart_read(uint8_t* input);
 void uart_write(uint8_t* output, int length);
+
+// Timer functions
+void timer_init();
+timeMs_t timer_ms();
+void timer_delay_ms(timeMs_t ms);

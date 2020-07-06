@@ -102,7 +102,7 @@ void pinWrite(pinNum_t pinNum, logicLevel_t level)
 	pinNum_t pinNumTrans = translatePinNum(pinNum);
 	volatile uint8_t* reg_port = pinPort(pinNum);
 	
-	if (level == LOW)
+	if (level == HIGH)
 	{
 		*reg_port &= ~(1 << pinNumTrans);
 	}
