@@ -2,40 +2,59 @@
 
 #define F_CPU 16000000UL
 
+#include <stddef.h>
 #include <stdbool.h>
 #include <avr/io.h>
 #include <util/delay.h>
 
 typedef int pinNum_t;
 typedef int pinMode_t;
-typedef bool logicLevel_t;
+typedef uint8_t logicLevel_t;
 
-#define B0
-#define B1
-#define B2
-#define B3
-#define B4
-#define B5
-#define B6
-#define B7
+#define B0 0
+#define B1 1
+#define B2 2
+#define B3 3
+#define B4 4
+#define B5 5
+#define B6 6
+#define B7 7
 
-#define C0
-#define C1
-#define C2
-#define C3
-#define C4
-#define C5
-#define C6
-#define C7
+#define C0 8
+#define C1 9
+#define C2 10
+#define C3 11
+#define C4 12
+#define C5 13
+#define C6 14
+#define C7 15
 
-#define D0
-#define D1
-#define D2
-#define D3
-#define D4
-#define D5
-#define D6
-#define D7
+#define D0 16
+#define D1 17
+#define D2 18
+#define D3 19
+#define D4 20
+#define D5 21
+#define D6 22
+#define D7 23
 
+#define MODE_INPUT 0
+#define MODE_INPUT_PULLUP 1
+#define MODE_OUTPUT 2
+
+#define HIGH 1
+#define LOW 0
+
+volatile uint8_t* pinDDR(pinNum_t pinNum);
+volatile uint8_t* pinPort(pinNum_t pinNum);
 void pinMode(pinNum_t pinNum, pinMode_t pinMode);
 void pinWrite(pinNum_t pinNum, logicLevel_t level);
+uint8_t pinRead(pinNum_t pinNum);
+
+void watchdogEnable(bool en);
+void watchdogReset();
+
+void uart_init();
+bool uart_available();
+int uart_read(uint8_t* input);
+void uart_write(uint8_t* output, int length);

@@ -143,6 +143,12 @@
     <Compile Include="PlasmaSpeaker.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="uart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="watchdog.c">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="vsix\" />
