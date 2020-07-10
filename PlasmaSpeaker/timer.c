@@ -17,10 +17,11 @@ void timer_init()
 
 	// CS12, CS11, CS10
 	// 0      1      0    - Divide clock b 8
-	TCCR1B |= (1 << WGM12) | (1 << CS11);
+	TCCR1A = 0;
+	TCCR1B = (1 << WGM12) | (1 << CS11);
 	OCR1AH = (timer_frequency >> 8) & 0xFF;
 	OCR1AL = timer_frequency & 0xFF;
-	TIMSK1 |= 1 << OCIE1A;
+	TIMSK1 |= (1 << OCIE1A);
 
 	sei();
 }

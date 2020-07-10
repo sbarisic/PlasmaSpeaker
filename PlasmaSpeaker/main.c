@@ -7,25 +7,27 @@ int main(void)
 
 	logicLevel_t status_led_on = HIGH;
 	logicLevel_t in_button_last = HIGH;
+	
+	tone_pwm_init();
 
 	pinMode(in_button, MODE_INPUT_PULLUP);
 	pinMode(status_led, MODE_OUTPUT);
 	pinWrite(status_led, status_led_on);
-
-	pwm_init();
 
 	uart_init();
 	char input[512];
 
 	timer_init();
 	timeMs_t lastFlashTime = timer_ms();
-	timeMs_t flashInterval = 250;
+	timeMs_t flashInterval = 200;
 
 	//watchdogEnable(true);
 
 	while (1)
 	{
 		//watchdogReset();
+		
+		tone_pwm_update();
 
 		logicLevel_t in_button_cur = pinRead(in_button);
 		if (in_button_cur != in_button_last)

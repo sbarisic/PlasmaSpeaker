@@ -102,7 +102,13 @@ void pinWrite(pinNum_t pinNum, logicLevel_t level)
 	pinNum_t pinNumTrans = translatePinNum(pinNum);
 	volatile uint8_t* reg_port = pinPort(pinNum);
 	
-	if (level == HIGH)
+	/*// Invert for D
+	if (pinNum >= D0 && pinNum <= D7)
+	{
+		level = invertLevel(level);
+	}*/
+	
+	if (level == LOW)
 	{
 		*reg_port &= ~(1 << pinNumTrans);
 	}
@@ -125,4 +131,14 @@ logicLevel_t pinRead(pinNum_t pinNum)
 	{
 		return HIGH;
 	}
+}
+
+logicLevel_t invertLevel(logicLevel_t level)
+{
+	if (level == LOW)
+	{
+		return HIGH;
+	}
+
+	return LOW;
 }

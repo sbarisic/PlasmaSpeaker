@@ -52,6 +52,7 @@ volatile uint8_t* pinPort(pinNum_t pinNum);
 void pinMode(pinNum_t pinNum, pinMode_t pinMode);
 void pinWrite(pinNum_t pinNum, logicLevel_t level);
 uint8_t pinRead(pinNum_t pinNum);
+logicLevel_t invertLevel(logicLevel_t level);
 
 // Watchdog functions
 void watchdogEnable(bool en);
@@ -69,4 +70,5 @@ timeMs_t timer_ms();
 void timer_delay_ms(timeMs_t ms);
 
 // PWM functions
-void pwm_init();
+void tone_pwm_init();
+void tone_pwm_update();
