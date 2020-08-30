@@ -71,4 +71,4 @@ void timer_delay_ms(timeMs_t ms);
 
 // PWM functions
 void tone_pwm_init();
-void tone_pwm_update();
+void tone_pwm_update(uint16_t tone_delay);

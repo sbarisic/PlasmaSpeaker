@@ -15,11 +15,15 @@ int main(void)
 	pinWrite(status_led, status_led_on);
 
 	uart_init();
+	uart_write("READY\n", 6);
 	char input[512];
 
 	timer_init();
 	timeMs_t lastFlashTime = timer_ms();
-	timeMs_t flashInterval = 200;
+	timeMs_t flashInterval = 10; // 200
+	
+	uint16_t tone_delay = 11;
+	bool dir = true;
 
 	//watchdogEnable(true);
 
@@ -27,7 +31,7 @@ int main(void)
 	{
 		//watchdogReset();
 		
-		tone_pwm_update();
+		tone_pwm_update(tone_delay);
 
 		logicLevel_t in_button_cur = pinRead(in_button);
 		if (in_button_cur != in_button_last)
@@ -46,6 +50,8 @@ int main(void)
 		if (uart_available())
 		{
 			uart_read(input);
+			
+			uart_write("DONE\n", 5);
 			// TODO: Handle UART input
 		}
 		
@@ -55,6 +61,14 @@ int main(void)
 			lastFlashTime = curTime;
 			status_led_on = !status_led_on;
 			pinWrite(status_led, status_led_on);
+			
+			if (dir)
+				tone_delay++;
+			else
+				tone_delay--;
+				
+			if (tone_delay <= 0 || tone_delay >= 1000)
+				dir = !dir;
 		}
 		
 		//pinWrite(OUTPUT_PIN, read_input);

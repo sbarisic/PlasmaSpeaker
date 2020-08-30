@@ -1,33 +1,29 @@
 #include "PlasmaSpeaker.h"
 #include "avr/interrupt.h"
 #include "avr/io.h"
+#include <math.h>
 
-#define TIMER2_FREQ 10
 #define OUT_PIN B2
+volatile uint16_t timer2_cnt;
 
-volatile bool timer2_triggered;
-
-ISR(TIMER2_OVF_vect)
+/*ISR(TIMER2_OVF_vect)
 {
-	timer2_triggered = true;
-	TCNT2 = TIMER2_FREQ;
-	
-	pinWrite(OUT_PIN, HIGH);
-	pinWrite(OUT_PIN, LOW);
+	timer2_cnt++;
+}*/
+
+void f_tone_delay(uint16_t tone_delay) {
+	for (uint16_t i = 0; i < tone_delay; i++)
+		_delay_us(1);
 }
 
-void tone_pwm_update()
+void tone_pwm_update(uint16_t tone_del)
 {
-	if (timer2_triggered)
-	{
-		timer2_triggered = false;
-	}
-	else
-	{
-		return;
-	}
+	uint16_t tone_delay = tone_del / 2;
 	
-
+	pinWrite(OUT_PIN, HIGH);
+	f_tone_delay(tone_delay);
+	pinWrite(OUT_PIN, LOW);
+	f_tone_delay(tone_delay);
 }
 
 void tone_pwm_init()
@@ -35,21 +31,11 @@ void tone_pwm_init()
 	pinMode(OUT_PIN, MODE_OUTPUT);
 	pinWrite(OUT_PIN, LOW);
 	
-	cli();
-	timer2_triggered = false;
-
+	/*cli();
+	
 	TCCR2A = 0;
-	TCCR2B = 0b00000011;
-	TIMSK2 |= 1 << TOIE2;
-	TCNT2 = TIMER2_FREQ;
-
-	/*
-	TCCR1B |= (1 << WGM12) | (1 << CS11);
-	OCR1AH = (timer_frequency >> 8) & 0xFF;
-	OCR1AL = timer_frequency & 0xFF;
-	TIMSK1 |= 1 << OCIE1A;
-	*/
-
-
-	sei();
+	TCCR2B = 1;
+	TIMSK2 = 1 << TOIE2;
+	
+	sei();*/
 }
