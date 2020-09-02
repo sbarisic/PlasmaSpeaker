@@ -20,10 +20,11 @@ int main(void)
 
 	timer_init();
 	timeMs_t lastFlashTime = timer_ms();
-	timeMs_t flashInterval = 10; // 200
+	timeMs_t flashInterval = 200; // 200
+	int quickflashCount = 0;
 	
 	uint16_t tone_delay = 11;
-	bool dir = true;
+	//bool dir = true;
 
 	//watchdogEnable(true);
 
@@ -39,6 +40,7 @@ int main(void)
 			in_button_last = in_button_cur;
 			if (in_button_cur == HIGH)
 			{
+				quickflashCount = 4;
 				uart_write("HIGH\n", 5);
 			}
 			else
@@ -50,25 +52,26 @@ int main(void)
 		if (uart_available())
 		{
 			uart_read(input);
+			tone_delay = (uint16_t)input[0];
 			
-			uart_write("DONE\n", 5);
+			//uart_write("DONE\n", 5);
 			// TODO: Handle UART input
 		}
 		
 		timeMs_t curTime = timer_ms();
-		if (curTime - lastFlashTime > flashInterval)
+		timeMs_t curFlashInterval = flashInterval;
+		
+		if (quickflashCount > 0)
+		{
+			curFlashInterval = curFlashInterval / 2;
+		}
+		
+		if (curTime - lastFlashTime > curFlashInterval)
 		{
 			lastFlashTime = curTime;
 			status_led_on = !status_led_on;
+			quickflashCount--;
 			pinWrite(status_led, status_led_on);
-			
-			if (dir)
-				tone_delay++;
-			else
-				tone_delay--;
-				
-			if (tone_delay <= 0 || tone_delay >= 1000)
-				dir = !dir;
 		}
 		
 		//pinWrite(OUTPUT_PIN, read_input);

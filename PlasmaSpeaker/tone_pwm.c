@@ -12,6 +12,8 @@ volatile uint16_t timer2_cnt;
 }*/
 
 void f_tone_delay(uint16_t tone_delay) {
+	_delay_us(20);
+	
 	for (uint16_t i = 0; i < tone_delay; i++)
 		_delay_us(1);
 }

@@ -1,5 +1,5 @@
 #include "PlasmaSpeaker.h"
-#define UART_BAUD 19200
+#define UART_BAUD 9600
 #define IN_BUFFER_LEN 512
 
 char in_buffer[IN_BUFFER_LEN];
@@ -22,19 +22,29 @@ void uart_init()
 	// Enable RX and TX
 	UCSR0B |= (1 << RXEN0) | (1 << TXEN0);
 	
-	// Char size to 8 bit
-	UCSR0C |= (1 << UCSZ00) | (1 << UCSZ01);
+	// Char size to 8 bit, 0 parity, 1 stop bit
+	UCSR0C = (1 << UCSZ00) | (1 << UCSZ01) ;
 	
 	uint16_t baudPrescale = (F_CPU / (UART_BAUD * 16UL)) - 1;
 	UBRR0H = (baudPrescale >> 8);
 	UBRR0L = baudPrescale;
 }
 
+bool uart_read_byte(uint8_t* out_byte)
+{
+	while (!(UCSR0A & (1 << RXC0)))
+	{
+		return false;
+	}
+	
+	*out_byte = UDR0;
+	return true;
+}
+
 bool uart_available()
 {
-	while ((UCSR0A & (1 << RXC0)) != 0)
-	{
-		uint8_t inByte = UDR0;
+	uint8_t inByte;
+	if (uart_read_byte(&inByte)) {
 		in_buffer[in_buffer_idx++] = (char)inByte;
 		
 		if (inByte == 0)
