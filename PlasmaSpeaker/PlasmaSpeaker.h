@@ -1,6 +1,8 @@
 #pragma once
 
+//#define F_CPU 16000000UL
 #define F_CPU 16000000UL
+//            16000000UL 
 
 #include <stddef.h>
 #include <stdbool.h>

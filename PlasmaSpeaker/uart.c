@@ -1,6 +1,9 @@
 #include "PlasmaSpeaker.h"
 #include <string.h>
 
+#define BAUD 200000
+#include <util/setbaud.h>
+
 #define IN_BUFFER_LEN 512
 
 bool uart_binary_mode;
@@ -22,10 +25,8 @@ void uart_init()
 	clear_input();
 	uart_set_binary_mode(false);
 	
-	// Enable RX and TX
-	UCSR0B |= BIT(RXEN0) | BIT(TXEN0);
-	
-	// Char size to 8 bit, 0 parity, 1 stop bit
+
+	/*// Char size to 8 bit, 0 parity, 1 stop bit
 	UCSR0C = BIT(UCSZ00) | BIT(UCSZ01) ;
 	
 	uint16_t baud = 9600;
@@ -33,6 +34,20 @@ void uart_init()
 	
 	UBRR0H = (baudPrescale >> 8);
 	UBRR0L = baudPrescale;
+	
+	// Enable RX and TX
+	UCSR0B |= BIT(RXEN0) | BIT(TXEN0);*/
+	
+	UBRR0H = UBRRH_VALUE;
+	UBRR0L = UBRRL_VALUE;
+	
+#if USE_2X
+	UCSR0A |= BIT(U2X0);
+#else
+	UCSR0A &= ~BIT(U2X0);
+#endif
+	// Enable RX and TX
+	UCSR0B |= BIT(RXEN0) | BIT(TXEN0);
 }
 
 bool uart_read_byte(uint8_t* out_byte)

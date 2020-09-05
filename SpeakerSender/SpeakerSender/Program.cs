@@ -28,18 +28,20 @@ namespace SpeakerSender {
 			string ComPort = File.ReadAllText("com_port.cfg").Trim();
 
 			Console.Write("Opening {0} ... ", ComPort);
-			Com = new SerialPort(ComPort, 9600, Parity.Odd, 8, StopBits.One);
+			Com = new SerialPort(ComPort, 200000/*, Parity.Odd, 8, StopBits.One*/);
 			Com.NewLine = "\n";
 			Com.Open();
 			Console.WriteLine("OK");
 
+			Console.WriteLine("Baud rate {0}", Com.BaudRate);
+
 			Music.Data = File.ReadAllBytes("mario.raw");
 
-			/*Thread T = new Thread(SenderThread);
+			Thread T = new Thread(SenderThread);
 			T.IsBackground = true;
-			T.Start();*/
+			T.Start();
 
-			Thread RT = new Thread(ReceiverThread2);
+			Thread RT = new Thread(ReceiverThread);
 			RT.IsBackground = true;
 			RT.Start();
 
@@ -87,9 +89,17 @@ namespace SpeakerSender {
 		}
 
 		static void ReceiverThread2() {
+			//Stopwatch SWatch = Stopwatch.StartNew();
+
 			while (true) {
-				string Line = Com.ReadLine();
-				Console.WriteLine(Line);
+				char Chr = (char)(byte)Com.ReadByte();
+				Console.Write(Chr);
+
+				/*Console.WriteLine("ms {0}", SWatch.Elapsed.TotalMilliseconds);
+				SWatch.Restart();*/
+
+				//string Line = Com.ReadLine();
+				//Console.WriteLine(Line);
 
 				/*if (Line == "READY")
 					Send("BINARY");*/

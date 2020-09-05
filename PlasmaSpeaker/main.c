@@ -5,21 +5,16 @@
 #include <avr/pgmspace.h>
 #include "sounddata.h"
 
-char input[256];
+//char input[256];
 
 #define tune_buffer_max_len 1024
 uint8_t tune_buffer[tune_buffer_max_len];
 uint16_t head;
 uint16_t tail;
 
-uint16_t tune_idx = 0;
-uint16_t recv_idx = 0;
-
-int buffer_push(uint8_t data)
+int16_t buffer_push(uint8_t data)
 {
-	int next;
-
-	next = head + 1;  // next is where head will point to after this write.
+	int16_t next = head + 1;  // next is where head will point to after this write.
 	if (next >= tune_buffer_max_len)
 	{
 		next = 0;
@@ -32,27 +27,43 @@ int buffer_push(uint8_t data)
 
 	tune_buffer[head] = data;  // Load data and then move
 	head = next;             // head to next data offset.
-	return 0;  // return success to indicate successful push.
+	
+	// Success
+	return 0;
 }
 
-int buffer_pop(uint8_t *data)
+int16_t buffer_pop(uint8_t *data)
 {
-	int next;
-
-	if (head == tail)  // if the head == tail, we don't have any data
+	// No data in buffer
+	if (head == tail)
 	{
 		return -1;
 	}
 
-	next = tail + 1;  // next is where tail will point to after this read.
+	int16_t next = tail + 1;
 	if(next >= tune_buffer_max_len)
 	{
 		next = 0;
 	}
 
-	*data = tune_buffer[tail];  // Read data and then move
-	tail = next;              // tail to next offset.
-	return 0;  // return success to indicate successful push.
+	*data = tune_buffer[tail]; // Read data and then move
+	tail = next; // Tail to next offset.
+	
+	// Success
+	return 0;
+}
+
+uint16_t buffer_get_free_count()
+{
+	uint16_t free = 0;
+	
+	while (head < tail)
+	{
+		free++;
+		
+	}
+	
+	return free;
 }
 
 int main(void)
@@ -77,11 +88,14 @@ int main(void)
 	timeMs_t flashInterval = 200; // 200
 	int quickflashCount = 0;
 	
-	while (1)
+	/*while (1)
 	{
-		uart_write("Hello World!\n", 13);
+		status_led_on = !status_led_on;
+		pinWrite(status_led, status_led_on);
+		
+		uart_write("Hello\n", 6);
 		_delay_ms(500);
-	}
+	}*/
 		
 	while (1)
 	{
@@ -91,20 +105,14 @@ int main(void)
 		if (buffer_pop(&cur_play_tone) == 0)
 		{
 			tone_pwm_update(cur_play_tone);
-			_delay_us(125);
+			_delay_us(125 * 2);
 		}
 		else
 		{
-			uart_write_16(2048);
+			uart_write_16(1024);
 		}
 		
-		/*tone_pwm_update(tune_buffer[tune_idx++]);
-		_delay_us(125);
-		if (tune_idx >= tune_buffer_max_len)
-		{
-			tune_idx = 0;
-		}*/
-
+		// Sanity test button
 		logicLevel_t in_button_cur = pinRead(in_button);
 		if (in_button_cur != in_button_last)
 		{
@@ -112,25 +120,17 @@ int main(void)
 			if (in_button_cur == HIGH)
 			{
 				quickflashCount = 4;
-				/*uart_write("READY\n", 6);
-				uart_set_binary_mode(true);*/
-				
-				uart_write_16(1024);
 			}
 		}
 		
+		// Receive sound data from PC via UART
 		uint8_t rec_play_tone;
 		while(uart_read_byte(&rec_play_tone))
 		{
 			buffer_push(rec_play_tone);
-			/*tune_buffer[recv_idx++] = rec_play_tone;
-			
-			if (recv_idx >= tune_buffer_max_len)
-			{
-				recv_idx = 0;
-			}*/
 		}
 		
+		// LED flashing
 		timeMs_t curTime = timer_ms();
 		timeMs_t curFlashInterval = flashInterval;
 		
