@@ -8,6 +8,8 @@
 //char input[256];
 
 #define tune_buffer_max_len 1024
+#define tune_buffer_min_req_cnt 680
+
 uint8_t tune_buffer[tune_buffer_max_len];
 uint16_t head;
 uint16_t tail;
@@ -53,16 +55,19 @@ int16_t buffer_pop(uint8_t *data)
 	return 0;
 }
 
-uint16_t buffer_get_free_count()
-{
+uint16_t buffer_get_free_count() {
 	uint16_t free = 0;
-	
-	while (head < tail)
-	{
+	uint16_t next = head + 1;
+
+	while (next != tail) {
+		next++;
 		free++;
-		
+
+		if (next >= tune_buffer_max_len) {
+			next = 0;
+		}
 	}
-	
+
 	return free;
 }
 
@@ -96,20 +101,38 @@ int main(void)
 		uart_write("Hello\n", 6);
 		_delay_ms(500);
 	}*/
-		
+	
 	while (1)
 	{
 		//watchdogReset();
+		//_delay_us(125);
 		
+		// Fetch current tone and play it
 		uint8_t cur_play_tone = 0;
 		if (buffer_pop(&cur_play_tone) == 0)
 		{
 			tone_pwm_update(cur_play_tone);
-			_delay_us(125 * 2);
+			//_delay_us(125);
+			_delay_us(250);
+		} else {
+			uart_write_16(tune_buffer_max_len - 10);
 		}
-		else
+		
+		/*// If there's free space in the buffer, request more data
+		uint16_t free = buffer_get_free_count();
+		if (free >= tune_buffer_min_req_cnt)
 		{
-			uart_write_16(1024);
+			uart_write_16(free);
+		}*/
+		
+		// Receive sound data from PC via UART
+		uint8_t rec_play_tone;
+		while (uart_read_byte(&rec_play_tone))
+		{
+			if (!buffer_push(rec_play_tone))
+			{
+				break;
+			}
 		}
 		
 		// Sanity test button
@@ -121,13 +144,6 @@ int main(void)
 			{
 				quickflashCount = 4;
 			}
-		}
-		
-		// Receive sound data from PC via UART
-		uint8_t rec_play_tone;
-		while(uart_read_byte(&rec_play_tone))
-		{
-			buffer_push(rec_play_tone);
 		}
 		
 		// LED flashing

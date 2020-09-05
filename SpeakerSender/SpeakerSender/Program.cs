@@ -28,7 +28,7 @@ namespace SpeakerSender {
 			string ComPort = File.ReadAllText("com_port.cfg").Trim();
 
 			Console.Write("Opening {0} ... ", ComPort);
-			Com = new SerialPort(ComPort, 200000/*, Parity.Odd, 8, StopBits.One*/);
+			Com = new SerialPort(ComPort, 110000/*, Parity.Odd, 8, StopBits.One*/);
 			Com.NewLine = "\n";
 			Com.Open();
 			Console.WriteLine("OK");

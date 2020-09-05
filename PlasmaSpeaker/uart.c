@@ -1,7 +1,7 @@
 #include "PlasmaSpeaker.h"
 #include <string.h>
 
-#define BAUD 200000
+#define BAUD 110000
 #include <util/setbaud.h>
 
 #define IN_BUFFER_LEN 512
