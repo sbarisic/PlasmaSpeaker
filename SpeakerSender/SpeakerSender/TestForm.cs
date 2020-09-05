@@ -17,7 +17,7 @@ namespace SpeakerSender {
 		private void TrackBar1_Scroll(object sender, EventArgs e) {
 			label1.Text = trackBar1.Value.ToString();
 
-			Program.Send((byte)trackBar1.Value);
+			//Program.Send((byte)trackBar1.Value);
 		}
 	}
 }

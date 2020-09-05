@@ -46,6 +46,8 @@ typedef unsigned long timeMs_t;
 #define HIGH 1
 #define LOW 0
 
+#define BIT(b) (1 << (b))
+
 // Pin IO functions
 volatile uint8_t* pinDDR(pinNum_t pinNum);
 volatile uint8_t* pinPort(pinNum_t pinNum);
@@ -60,9 +62,14 @@ void watchdogReset();
 
 // UART functions
 void uart_init();
-bool uart_available();
-int uart_read(char* input);
-void uart_write(const char* output, int length);
+bool uart_line_available();
+uint16_t uart_read(char* input);
+void uart_write(const char* output, uint16_t length);
+void uart_set_binary_mode(bool binary_mode);
+bool uart_is_binary();
+bool uart_read_byte(uint8_t* out_byte);
+void uart_write_8(uint8_t byte);
+void uart_write_16(uint16_t ushort);
 
 // Timer functions
 void timer_init();
@@ -71,4 +78,4 @@ void timer_delay_ms(timeMs_t ms);
 
 // PWM functions
 void tone_pwm_init();
-void tone_pwm_update(uint16_t tone_delay);
+void tone_pwm_update(uint8_t tone);

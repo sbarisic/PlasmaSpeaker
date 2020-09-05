@@ -1,9 +1,11 @@
 #include "PlasmaSpeaker.h"
-#define UART_BAUD 9600
+#include <string.h>
+
 #define IN_BUFFER_LEN 512
 
+bool uart_binary_mode;
 char in_buffer[IN_BUFFER_LEN];
-int in_buffer_idx;
+int16_t in_buffer_idx;
 
 void clear_input()
 {
@@ -18,21 +20,24 @@ void clear_input()
 void uart_init()
 {
 	clear_input();
+	uart_set_binary_mode(false);
 	
 	// Enable RX and TX
-	UCSR0B |= (1 << RXEN0) | (1 << TXEN0);
+	UCSR0B |= BIT(RXEN0) | BIT(TXEN0);
 	
 	// Char size to 8 bit, 0 parity, 1 stop bit
-	UCSR0C = (1 << UCSZ00) | (1 << UCSZ01) ;
+	UCSR0C = BIT(UCSZ00) | BIT(UCSZ01) ;
 	
-	uint16_t baudPrescale = (F_CPU / (UART_BAUD * 16UL)) - 1;
+	uint16_t baud = 9600;
+	uint16_t baudPrescale = (F_CPU / (baud * 16UL)) - 1;
+	
 	UBRR0H = (baudPrescale >> 8);
 	UBRR0L = baudPrescale;
 }
 
 bool uart_read_byte(uint8_t* out_byte)
 {
-	while (!(UCSR0A & (1 << RXC0)))
+	while (!(UCSR0A & BIT(RXC0)))
 	{
 		return false;
 	}
@@ -41,13 +46,14 @@ bool uart_read_byte(uint8_t* out_byte)
 	return true;
 }
 
-bool uart_available()
+bool uart_line_available()
 {
 	uint8_t inByte;
 	if (uart_read_byte(&inByte)) {
-		in_buffer[in_buffer_idx++] = (char)inByte;
+		in_buffer[in_buffer_idx] = (char)inByte;
+		in_buffer_idx++;
 		
-		if (inByte == 0)
+		if (inByte == 10)
 		{
 			return true;
 		}
@@ -56,29 +62,50 @@ bool uart_available()
 	return false;
 }
 
-int uart_read(char* input)
+uint16_t uart_read(char* input)
 {
-	for (int i = 0; i < IN_BUFFER_LEN; i++)
+	uint16_t ret_len = in_buffer_idx;
+	
+	for (uint16_t i = 0; i < ret_len; i++)
 	{
-		if ((input[i] = in_buffer[i]) == 0)
-		{
-			clear_input();
-			return i;
-		}
+		input[i] = in_buffer[i];
 	}
 	
+	input[ret_len] = 0;
 	clear_input();
-	return IN_BUFFER_LEN;
+	return ret_len;
+
 }
 
-void uart_write(const char* output, int length)
+void uart_write_8(uint8_t byte)
+{
+	while ((UCSR0A & BIT(UDRE0)) == 0)
+	{
+	};
+		
+	UDR0 = byte;
+}
+
+void uart_write_16(uint16_t ushort)
+{
+	uart_write_8(ushort & 0xFF);
+	uart_write_8((ushort >> 8) & 0xFF);
+}
+
+void uart_write(const char* output, uint16_t length)
 {
 	for (int i = 0; i < length; i++)
 	{
-		while ((UCSR0A & (1 << UDRE0)) == 0)
-		{
-		};
-		
-		UDR0 = output[i];
+		uart_write_8(output[i]);
 	}
+}
+
+void uart_set_binary_mode(bool binary_mode)
+{
+	uart_binary_mode = binary_mode;
+}
+
+bool uart_is_binary()
+{
+	return uart_binary_mode;
 }
