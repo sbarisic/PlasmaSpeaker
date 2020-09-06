@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ConfigData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <configVersion>1</configVersion>
-  <updateCheck>1599303370</updateCheck>
+  <updateCheck>1599401825</updateCheck>
   <skipVersion>
     <Major>0</Major>
     <Minor>0</Minor>
@@ -11,8 +11,8 @@
   <avrdudeConfLoc />
   <avrSizeLoc />
   <windowLocation>
-    <X>306</X>
-    <Y>153</Y>
+    <X>131</X>
+    <Y>159</Y>
   </windowLocation>
   <language>english</language>
   <hiddenMCUs />
@@ -26,9 +26,9 @@
     <flashFile>C:\Projekti\PlasmaSpeaker\PlasmaSpeaker\Debug\PlasmaSpeaker.hex</flashFile>
     <flashFormat>a</flashFormat>
     <flashOp>w</flashOp>
-    <EEPROMFile />
-    <EEPROMFormat>a</EEPROMFormat>
-    <EEPROMOp>w</EEPROMOp>
+    <EEPROMFile>C:\Projekti\PlasmaSpeaker\eeprom_mem.hex</EEPROMFile>
+    <EEPROMFormat>i</EEPROMFormat>
+    <EEPROMOp>r</EEPROMOp>
     <force>false</force>
     <disableVerify>false</disableVerify>
     <disableFlashErase>false</disableFlashErase>

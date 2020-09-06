@@ -1,6 +1,11 @@
 #include "PlasmaSpeaker.h"
 #include <string.h>
+#include <stdio.h>
 
+// 110'000 baud - 13.75 kilobytes per second
+// We need at least 8 kilobytes per second - 64000 baud
+// Music is sampled at 8000 Hz, each sample is 1 byte in size in PCM format
+// PCM -  
 #define BAUD 110000
 #include <util/setbaud.h>
 
@@ -46,6 +51,7 @@ void uart_init()
 #else
 	UCSR0A &= ~BIT(U2X0);
 #endif
+
 	// Enable RX and TX
 	UCSR0B |= BIT(RXEN0) | BIT(TXEN0);
 }
@@ -113,6 +119,26 @@ void uart_write(const char* output, uint16_t length)
 	{
 		uart_write_8(output[i]);
 	}
+}
+
+void uart_write_uint8(uint8_t num)
+{
+	char buf[5];
+	int len = sprintf(buf, "%u", num);
+	uart_write(buf, len);
+}
+
+void uart_write_uint16(uint16_t num)
+{
+	char buf[10];
+	int len = sprintf(buf, "%u", num);
+	uart_write(buf, len);
+}
+
+void uart_write_str(const char* str)
+{
+	uint16_t len = strlen(str);
+	uart_write(str, len);
 }
 
 void uart_set_binary_mode(bool binary_mode)

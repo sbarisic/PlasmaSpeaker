@@ -11,6 +11,7 @@ using System.Net.Http.Headers;
 
 namespace SpeakerSender {
 	unsafe static class Program {
+		static object LockObj = new object();
 		static SerialPort Com;
 		static int ReqCount = 0;
 
@@ -25,17 +26,22 @@ namespace SpeakerSender {
 
 		[STAThread]
 		static void Main(string[] args) {
-			string ComPort = File.ReadAllText("com_port.cfg").Trim();
+			string ComPort = "COM9";
 
 			Console.Write("Opening {0} ... ", ComPort);
-			Com = new SerialPort(ComPort, 110000/*, Parity.Odd, 8, StopBits.One*/);
+			Com = new SerialPort(ComPort, 110000);
 			Com.NewLine = "\n";
 			Com.Open();
 			Console.WriteLine("OK");
 
 			Console.WriteLine("Baud rate {0}", Com.BaudRate);
 
-			Music.Data = File.ReadAllBytes("mario.raw");
+			Random Rnd = new Random();
+			string[] MusicFiles = Directory.GetFiles("music", "*.raw");
+			string MusicFile = MusicFiles[Rnd.Next(0, MusicFiles.Length)];
+			Console.WriteLine("Playing {0}", MusicFile);
+
+			Music.Data = File.ReadAllBytes(MusicFile);
 
 			Thread T = new Thread(SenderThread);
 			T.IsBackground = true;
@@ -45,22 +51,43 @@ namespace SpeakerSender {
 			RT.IsBackground = true;
 			RT.Start();
 
-			//System.Windows.Forms.Application.Run(new TestForm());
 			while (true) {
 			}
 		}
 
 		static void ReceiverThread() {
+			bool BinaryMode = false;
+
 			while (true) {
-				byte Low = (byte)Com.ReadByte();
-				byte High = (byte)Com.ReadByte();
-				ushort Num = (ushort)(((ushort)High << 8) | (ushort)Low);
-				ReqCount = Num;
+				if (BinaryMode) {
+					byte Low = (byte)Com.ReadByte();
+					byte High = (byte)Com.ReadByte();
+					ushort Num = (ushort)(((ushort)High << 8) | (ushort)Low);
 
-				Console.WriteLine("Requested {0}", ReqCount);
+					lock (LockObj) {
+						ReqCount = Num;
 
-				/*if (Line == "READY")
-					Send("BINARY");*/
+						Console.CursorLeft = 0;
+						Console.Write("Requested {0} sample bytes ... {1}", ReqCount, DateTime.Now.TimeOfDay);
+					}
+				} else {
+					string Line = Com.ReadLine();
+					bool Print = true;
+
+					if (Line.EndsWith("DISCARD_LINE"))
+						Print = false;
+
+					switch (Line) {
+						case "BINARY":
+							BinaryMode = true;
+							Print = false;
+							Console.WriteLine("Switching to binary mode\n\n\n");
+							break;
+					}
+
+					if (Print)
+						Console.WriteLine(Line);
+				}
 			}
 		}
 
@@ -72,39 +99,19 @@ namespace SpeakerSender {
 				if (ReqCount <= 0)
 					continue;
 
-				//ReqCount = 1024;
+				lock (LockObj) {
+					byte[] ReqData = new byte[ReqCount];
 
-				byte[] ReqData = new byte[ReqCount];
+					for (int i = 0; i < ReqCount; i++) {
+						ReqData[i] = Music.Data[Offset++];
 
-				for (int i = 0; i < ReqCount; i++) {
-					ReqData[i] = Music.Data[Offset++];
+						if (Offset >= Music.Data.Length)
+							Offset = 0;
+					}
 
-					if (Offset >= Music.Data.Length)
-						Offset = 0;
+					ReqCount = 0;
+					Send(ReqData);
 				}
-
-
-				ReqCount = 0;
-				Send(ReqData);
-				//Thread.Sleep(10);
-			}
-		}
-
-		static void ReceiverThread2() {
-			//Stopwatch SWatch = Stopwatch.StartNew();
-
-			while (true) {
-				char Chr = (char)(byte)Com.ReadByte();
-				Console.Write(Chr);
-
-				/*Console.WriteLine("ms {0}", SWatch.Elapsed.TotalMilliseconds);
-				SWatch.Restart();*/
-
-				//string Line = Com.ReadLine();
-				//Console.WriteLine(Line);
-
-				/*if (Line == "READY")
-					Send("BINARY");*/
 			}
 		}
 	}

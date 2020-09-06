@@ -74,6 +74,9 @@ bool uart_is_binary();
 bool uart_read_byte(uint8_t* out_byte);
 void uart_write_8(uint8_t byte);
 void uart_write_16(uint16_t ushort);
+void uart_write_str(const char* str);
+void uart_write_uint16(uint16_t num);
+void uart_write_uint8(uint8_t num);
 
 // Timer functions
 void timer_init();
@@ -83,3 +86,11 @@ void timer_delay_ms(timeMs_t ms);
 // PWM functions
 void tone_pwm_init();
 void tone_pwm_update(uint8_t tone);
+
+// EEPROM functions
+void eeprom_write8(uint8_t offset, uint8_t byte);
+uint8_t eeprom_read8(uint8_t offset);
+void eeprom_write16(uint8_t offset, uint16_t ushort);
+uint16_t eeprom_read16(uint8_t offset);
+uint8_t eeprom_read8_default(uint8_t offset, uint8_t def);
+uint16_t eeprom_read16_default(uint8_t offset, uint16_t def);
