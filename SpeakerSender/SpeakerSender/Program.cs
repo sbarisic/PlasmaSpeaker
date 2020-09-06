@@ -57,6 +57,8 @@ namespace SpeakerSender {
 				ushort Num = (ushort)(((ushort)High << 8) | (ushort)Low);
 				ReqCount = Num;
 
+				Console.WriteLine("Requested {0}", ReqCount);
+
 				/*if (Line == "READY")
 					Send("BINARY");*/
 			}

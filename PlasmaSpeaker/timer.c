@@ -2,33 +2,45 @@
 #include "avr/interrupt.h"
 #include "avr/io.h"
 
-volatile timeMs_t time_counter;
+volatile uint16_t time_counter;
+volatile timeMs_t time_counter_ms;
+
+void callback_8000hz();
 
 ISR(TIMER1_COMPA_vect)
 {
 	time_counter++;
+	
+	if (time_counter >= 8) 
+	{
+		time_counter = 0;
+		time_counter_ms++;
+	}
+	
+	callback_8000hz();
 }
 
 void timer_init()
 {
 	cli();
 
-	unsigned long timer_frequency = (F_CPU / 1000) / 8;
-
-	// CS12, CS11, CS10
-	// 0      1      0    - Divide clock b 8
-	TCCR1A = 0;
-	TCCR1B = (1 << WGM12) | (1 << CS11);
-	OCR1AH = (timer_frequency >> 8) & 0xFF;
-	OCR1AL = timer_frequency & 0xFF;
-	TIMSK1 |= (1 << OCIE1A);
+	// Set clear timer on compare match mode
+	TCCR1B = (TCCR1B & ~BIT(WGM13)) | BIT(WGM12);
+	TCCR1A = TCCR1A & ~(BIT(WGM11) | BIT(WGM10));
+	
+	// No prescaler
+	TCCR1B = (TCCR1B & ~(BIT(CS12) | BIT(CS11))) | BIT(CS10);
+	
+	// Trigger frequency 8000 Hz
+	OCR1A = F_CPU / 8000; 
+	TIMSK1 |= BIT(OCIE1A);
 
 	sei();
 }
 
 timeMs_t timer_ms()
 {
-	return time_counter;
+	return time_counter_ms;
 }
 
 void timer_delay_ms(timeMs_t ms)

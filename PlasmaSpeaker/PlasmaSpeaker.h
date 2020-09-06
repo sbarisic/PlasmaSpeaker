@@ -12,7 +12,9 @@
 typedef int pinNum_t;
 typedef int pinMode_t;
 typedef uint8_t logicLevel_t;
-typedef unsigned long timeMs_t;
+
+typedef uint16_t timeMs_t;
+typedef uint32_t timeUs_t;
 
 #define B0 0
 #define B1 1

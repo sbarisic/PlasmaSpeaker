@@ -11,8 +11,11 @@
 #define tune_buffer_min_req_cnt 680
 
 uint8_t tune_buffer[tune_buffer_max_len];
+uint8_t tone;
 uint16_t head;
 uint16_t tail;
+
+bool tune_buffer_empty;
 
 int16_t buffer_push(uint8_t data)
 {
@@ -71,6 +74,18 @@ uint16_t buffer_get_free_count() {
 	return free;
 }
 
+void callback_8000hz()
+{
+	if (buffer_pop(&tone) == 0)
+	{
+		tone_pwm_update(tone);
+	}
+	else
+	{
+		tune_buffer_empty = true;
+	}
+}
+
 int main(void)
 {
 	pinNum_t in_button = B1;
@@ -95,35 +110,23 @@ int main(void)
 	
 	/*while (1)
 	{
-		status_led_on = !status_led_on;
-		pinWrite(status_led, status_led_on);
-		
-		uart_write("Hello\n", 6);
-		_delay_ms(500);
+	status_led_on = !status_led_on;
+	pinWrite(status_led, status_led_on);
+	
+	uart_write("Hello\n", 6);
+	_delay_ms(500);
 	}*/
 	
 	while (1)
 	{
 		//watchdogReset();
-		//_delay_us(125);
 		
-		// Fetch current tone and play it
-		uint8_t cur_play_tone = 0;
-		if (buffer_pop(&cur_play_tone) == 0)
+		// Buffer empty, request more data
+		if (tune_buffer_empty)
 		{
-			tone_pwm_update(cur_play_tone);
-			//_delay_us(125);
-			_delay_us(250);
-		} else {
+			tune_buffer_empty = false;
 			uart_write_16(tune_buffer_max_len - 10);
 		}
-		
-		/*// If there's free space in the buffer, request more data
-		uint16_t free = buffer_get_free_count();
-		if (free >= tune_buffer_min_req_cnt)
-		{
-			uart_write_16(free);
-		}*/
 		
 		// Receive sound data from PC via UART
 		uint8_t rec_play_tone;
