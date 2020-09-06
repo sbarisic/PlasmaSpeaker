@@ -12,6 +12,7 @@ uint8_t eeprom_read8(uint8_t offset)
 	return eeprom_read_byte((uint8_t*)(uint16_t)offset);
 }
 
+// Split 16 bit numbers into high and low and read/write them separately
 void eeprom_write16(uint8_t offset, uint16_t ushort)
 {
 	uint8_t hi = (uint8_t)((ushort >> 8) & 0xFF);
@@ -27,6 +28,8 @@ uint16_t eeprom_read16(uint8_t offset)
 	return ((uint16_t)hi << 8) | lo;
 }
 
+// Read a number at an offset, if there's no value there (0xFF default), write a default
+// preset value in it's place and return it
 uint8_t eeprom_read8_default(uint8_t offset, uint8_t def)
 {
 	uint8_t val = eeprom_read8(offset);

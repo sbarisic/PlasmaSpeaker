@@ -5,7 +5,7 @@
 // 110'000 baud - 13.75 kilobytes per second
 // We need at least 8 kilobytes per second - 64000 baud
 // Music is sampled at 8000 Hz, each sample is 1 byte in size in PCM format
-// PCM -  
+// PCM - https://en.wikipedia.org/wiki/Pulse-code_modulation
 #define BAUD 110000
 #include <util/setbaud.h>
 
@@ -29,19 +29,6 @@ void uart_init()
 {
 	clear_input();
 	uart_set_binary_mode(false);
-	
-
-	/*// Char size to 8 bit, 0 parity, 1 stop bit
-	UCSR0C = BIT(UCSZ00) | BIT(UCSZ01) ;
-	
-	uint16_t baud = 9600;
-	uint16_t baudPrescale = (F_CPU / (baud * 16UL)) - 1;
-	
-	UBRR0H = (baudPrescale >> 8);
-	UBRR0L = baudPrescale;
-	
-	// Enable RX and TX
-	UCSR0B |= BIT(RXEN0) | BIT(TXEN0);*/
 	
 	UBRR0H = UBRRH_VALUE;
 	UBRR0L = UBRRL_VALUE;

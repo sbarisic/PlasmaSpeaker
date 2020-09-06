@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 
+// Uncomment to skip entering into binary mode
+// For debug purposes
 #define PLAY_MUSIC
 
 // 1024 byte circular buffer
@@ -57,6 +59,7 @@ int16_t buffer_pop(uint8_t *data)
 	return 0;
 }
 
+// Change PCM sample 8000 times a second if there's any, or request new samples
 void callback_8000hz()
 {
 #ifdef PLAY_MUSIC
